@@ -1,7 +1,7 @@
 export async function fetchEvents({ signal, searchTerm }) {
   let url = 'http://localhost:3000/events';
 
-  console.log('searchTerm', searchTerm);
+  // console.log('searchTerm', searchTerm);
 
   if (searchTerm) {
     url += `?search=${searchTerm}`;
