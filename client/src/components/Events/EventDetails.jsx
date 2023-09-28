@@ -26,7 +26,10 @@ export default function EventDetails() {
   } = useMutation({
     mutationFn: deleteEvent,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['events'], exact: true });
+      queryClient.invalidateQueries({
+        queryKey: ['events'],
+        refetchType: 'none',
+      });
       navigate('/events');
     },
   });
@@ -37,44 +40,7 @@ export default function EventDetails() {
     mutate({ id: params.id });
   };
 
-  let content = data && (
-    <article id="event-details">
-      <header>
-        <h1>{data.title}</h1>
-        <nav>
-          {isPendingDelEvent && <p>deleting event ...</p>}
-
-          {isErrorDelEvent && (
-            <ErrorBlock
-              title="An error occurred"
-              message={
-                deletedError.info?.message ||
-                'Failed to delete event. Please try again later!'
-              }
-            />
-          )}
-
-          {!isPendingDelEvent && !isErrorDelEvent && (
-            <button onClick={deleteEventHandler}>Delete</button>
-          )}
-
-          <Link to="edit">Edit</Link>
-        </nav>
-      </header>
-      <div id="event-details-content">
-        <img src={`http://localhost:3000/${data.image}`} alt={data.title} />
-        <div id="event-details-info">
-          <div>
-            <p id="event-details-location">{data.location}</p>
-            <time
-              dateTime={`Todo-DateT$Todo-Time`}
-            >{`${data.date} at ${data.time}`}</time>
-          </div>
-          <p id="event-details-description">{data.description}</p>
-        </div>
-      </div>
-    </article>
-  );
+  let content;
 
   if (isPending) {
     content = (
@@ -93,6 +59,53 @@ export default function EventDetails() {
     );
   }
 
+  if (data) {
+    const formattedDate = new Date(data.date).toLocaleDateString('en-US', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+    });
+
+    content = (
+      <>
+        <header>
+          <h1>{data.title}</h1>
+          <nav>
+            {isPendingDelEvent && <p>deleting event ...</p>}
+
+            {isErrorDelEvent && (
+              <ErrorBlock
+                title="An error occurred"
+                message={
+                  deletedError.info?.message ||
+                  'Failed to delete event. Please try again later!'
+                }
+              />
+            )}
+
+            {!isPendingDelEvent && !isErrorDelEvent && (
+              <button onClick={deleteEventHandler}>Delete</button>
+            )}
+
+            <Link to="edit">Edit</Link>
+          </nav>
+        </header>
+        <div id="event-details-content">
+          <img src={`http://localhost:3000/${data.image}`} alt={data.title} />
+          <div id="event-details-info">
+            <div>
+              <p id="event-details-location">{data.location}</p>
+              <time
+                dateTime={`Todo-DateT$Todo-Time`}
+              >{`${formattedDate} at ${data.time}`}</time>
+            </div>
+            <p id="event-details-description">{data.description}</p>
+          </div>
+        </div>
+      </>
+    );
+  }
+
   return (
     <>
       <Outlet />
@@ -103,7 +116,7 @@ export default function EventDetails() {
         </Link>
       </Header>
 
-      {content}
+      <article id="event-details">{content}</article>
     </>
   );
 }
