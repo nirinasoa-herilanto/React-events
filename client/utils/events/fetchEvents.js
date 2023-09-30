@@ -1,10 +1,18 @@
-export async function fetchEvents({ signal, searchTerm }) {
+export async function fetchEvents({ signal, searchTerm, max }) {
   let url = 'http://localhost:3000/events';
 
   // console.log('searchTerm', searchTerm);
 
+  if (searchTerm && max) {
+    url += `?search=${searchTerm}&max=${max}`;
+  }
+
   if (searchTerm) {
     url += `?search=${searchTerm}`;
+  }
+
+  if (max) {
+    url += `?max=${max}`;
   }
 
   const response = await fetch(url, { signal: signal });
